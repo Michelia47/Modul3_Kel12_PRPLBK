@@ -1,46 +1,52 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import React, {useState, useEffect} from 'react';
+import "./App.css";
+import axios from "axios";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [sepuluh, setSepuluh] = useState(false);
-  const [even, setEven] = useState(null);
+function App(){
+    const [loading, setLoading] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [searchTitle, setSearchTitle] = useState("");
 
-  useEffect(()=>{
-    if(count === 10){
-      setSepuluh(true);
-    }else{
-      setSepuluh(false);
-    }
-  },[count]);
+    useEffect(()=>{
+        const loadPosts = async ()=>{
+            setLoading(true);
+            const response=await axios.get(
+                "https://jsonplaceholder.typicode.com/posts"
+            );
+            setPosts(response.data);
+            setLoading(false);
+        };
 
-  useEffect(()=>{
-    if(count % 2 === 10){
-      setEven(true);
-    }else{
-      setEven(false);
-    }
-  },[count]);
+        loadPosts();
+    }, []);
 
-  return(
-    <>
-    {even===true}
-    <h3>Tugas Praktikum RPLBK Modul 3</h3>
-    <h3>Kelompok 12</h3>
-    <p>Program Counter</p>
-    <div className='card'>
-      {count===10 ? <p>Counter telah mencapai nilai 10 !</p> : <p>{count}</p>}
-      {count === 10 ? (<button className='btn1' onClick={()=>setCount(count-1)}>Kurang</button>):(
-        <>
-        <button className='btn1' onClick={()=>setCount(count+1)}>Tambah</button>
-        {count>0 && <button className='btn1' onClick={()=>setCount(count-1)}>Kurang</button>}
-        </>
-      )}
-    </div>
-    </>
-  );
-      }
-
+    return (
+        <div className="App">
+            <h3>Tugas RPLBK Modul 4 | Kelompok 12</h3>
+            <p>Program Dynamic Search</p>
+            <input
+            style={{width: "30%", height: "25px"}}
+            type="text"
+            placeholder="Search"
+            onChange={(e)=>setSearchTitle(e.target.value)}
+            />
+            {loading ? (
+                <h4>Loading ...</h4>
+            ) : (
+                posts
+                .filter((value)=>{
+                    if(searchTitle === ""){
+                        return value;
+                    }else if(
+                        value.title.toLowerCase().includes(searchTitle.toLowerCase())
+                    ){
+                        return value;
+                    }
+                })
+                .map((item) => <h5 key={item.id}>{item.title}</h5>)
+            )}
+        </div>
+    );
+}
 
 export default App;
-
